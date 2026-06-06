@@ -36,11 +36,22 @@ fn run(args: Args) -> Result<()> {
         match open(&filename) {
             Err(err) => eprintln!("Failed to open {filename}: {err}"),
             Ok(reader) => {
-                let mut line_number = 0;
+                let mut line_number = 1;
                 for line in reader.lines() {
                     let line = line?;
-                    println!("{}{}", if args.number_lines {line_number.to_string() + " "} else {String::new()}, line);
-                    line_number += 1;
+                    if args.number_nonblank_lines {
+                        if line.is_empty() {
+                            println!("");
+                            continue;
+                        }
+                        println!("{line_number:>6}\t{line}");
+                        line_number += 1;
+                    } else if args.number_lines {
+                        println!("{line_number:>6}\t{line}");
+                        line_number += 1;
+                    } else {
+                        println!("{line}");
+                    }
                 }
             }
             
